@@ -1,16 +1,49 @@
 
 #declaração de variáveis
 user_selection = input("\n Digite 1 para acessar e 2 para encerrar: \n ")
-user_right_email = 'admin'
-user_right_password = 1234
 retry = 0
-saldo = 193.94
-limite = 100
 diferenca = 0
+logged_user = None
+
+users = [
+        {
+        "type": "admin",
+        "user_email": "admin@admin",
+        "user_password": 1234,
+        "saldo": 10000,
+        "limite": 10000,
+    },
+        {
+        "type": "user",
+        "user_email": "chorenafeature@user",
+        "user_password": 6767,
+        "saldo": 6767,
+        "limite": 86400,
+    },
+        {
+        "type": "user",
+        "user_email": "lucasguloso@user",
+        "user_password": 6969,
+        "saldo": 2440,
+        "limite": 30,
+    },
+        {
+        "type" : "user",
+        "user_email": "aninhafazcompleto@user",
+        "user_password": 8888,
+        "saldo": 250,
+        "limite": 3600,
+    }
+]
+
 
 #função para mostrar opções do menu
 def print_menu():
     print("\n- UNIVILLE Internet Banking -")
+
+    if logged_user["type"] == "admin":
+        print("0. Gerenciar Usuários")
+
     print("1. Consultar Saldo")
     print("2. Realizar Saque")
     print("3. Realizar Depósito")
@@ -30,31 +63,88 @@ elif user_selection != '1':
     exit()
 else:
 
-# Loop para login
+# Loop para login 
+
     while retry < 3:
-        user_email = str(input("Digite o seu e-mail: "))
-        user_password = int(input("Digite a sua senha: "))
-        if user_password == user_right_password and user_email == user_right_email:
-            print("Senha válida")
-            break
-        else: 
-            retry += 1
-            print(f"Senha inválida, você tem mais {3 - retry} tentativas") 
-        if retry == 3:
-            print("Número de tentativas excedidas. Fim de programa.")
-            exit()
-            continue
-    
-    # Loop do menu principal
-    while True:
-        try:   
-            print_menu()
-            user_selection_menu = input("Escolha uma opção: ")
+
+        user_email = input("Digite o seu e-mail: ")
+
+        try:
+            user_password = int(input("Digite a sua senha: "))
         except ValueError:
             invalid_code()
             continue
 
-        # Consulta de saldo 
+        logged_user = None
+
+        for user in users:
+
+            if (
+                user["user_email"] == user_email
+                and user["user_password"] == user_password
+            ):
+                logged_user = user
+                break
+
+        if logged_user:
+
+            match logged_user["type"]:
+
+                case "admin":
+                    print("Bem vindo adm!", user_email)
+
+                case "user":
+                    print("Bem vindo usuário!", user_email)
+
+                case _:
+                    invalid_code()
+                    exit()
+
+            saldo = logged_user["saldo"]
+            limite = logged_user["limite"]
+            tipo = logged_user["type"]
+
+            break
+
+        retry += 1
+
+        print(
+            f"Tudo errado, tenta denovo parceiro, você tem mais {3 - retry} tentativas."
+        )
+
+    if retry >= 3:
+        print("Deu a tua cota")
+        exit()  
+    # Loop do menu principal
+    while True:
+    
+        try:   
+            print_menu()
+            user_selection_menu = input("Escolha uma opção: \n")
+        except ValueError:
+            invalid_code()
+            continue
+
+        #Gerenciar usuários
+        if user_selection_menu == "0":
+            if logged_user["type"] != "admin":
+                invalid_code()
+
+            else:
+                for i, user in enumerate(users):
+                    if user["type"] == "user":
+                        print(f"{i}. {user['user_email']}")
+
+                select = int(input("Escolhe um:"))
+
+                select_user = users[select]
+                print(f"Escolheu alguém meio parecido com {select_user['user_email']}")
+
+                saldo = select_user['saldo']
+                limite = select_user['limite']
+                
+            
+                        
         if user_selection_menu == '1':
             while True:
                 try:
@@ -85,9 +175,10 @@ else:
                         limite -= diferenca  
                         saldo = 0
                     else:
-                        saldo -= saque
+                        select_user['saldo'] -= saque
 
                     print("Saque realizado com sucesso")
+                    print(f"Saldo atual R$:", saldo)
                     
 
         # Depósito
